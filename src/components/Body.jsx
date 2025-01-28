@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Outlet } from "react-router-dom";
@@ -8,19 +8,21 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Body = () => {
+  console.log("from body");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector((store) => store.user);
   const fetchUser = async () => {
     try {
       const res = await axios.get("http://localhost:7777/profile/view", {
         withCredentials: true,
       });
-      const result = dispatch(addUser(res.data));
+      const result = dispatch(addUser(res?.data));
     } catch (err) {
+      console.error("Unauthrorise access");
       if (err.status == 401) navigate("/login");
     }
   };
+
   useEffect(() => {
     fetchUser();
   }, []);
@@ -29,7 +31,7 @@ const Body = () => {
     <>
       <Navbar />
       <Outlet />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

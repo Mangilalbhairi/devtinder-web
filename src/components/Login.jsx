@@ -2,14 +2,15 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser } from "../utils/userSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+  const { isAuthentigate } = useSelector((store) => store.user);
 
   const handleLogin = async () => {
     try {
@@ -18,16 +19,15 @@ const Login = () => {
         { email, password },
         { withCredentials: true }
       );
-      console.log(res);
+
       const result = dispatch(addUser(res.data.user));
       navigate("/");
     } catch (err) {
-      setError(err);
-      if (err.status == 400) {
-        navigate("/login");
-      }
+      setError(err?.response?.data);
     }
   };
+
+  if (isAuthentigate) return <Navigate to="/" />;
   return (
     <>
       <div className=" flex justify-center mt-5">
@@ -58,13 +58,9 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                {error.message && (
-                  <p className="bold text-red-500 text-2xl">
-                    please Enter detail
-                  </p>
-                )}
               </label>
             </div>
+            {error && <p className="text-red-500 bold"> {error}</p>}
             <div className="card-actions flex justify-center my-2">
               <button className="btn btn-primary px-6 " onClick={handleLogin}>
                 Login
